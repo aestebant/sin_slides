@@ -23,9 +23,9 @@
 
 % in debug mode, show the boxes around the text
 \ifdefined\DEBUG
-\usepackage[absolute,overlay,showboxes]{textpos}
+  \usepackage[absolute,overlay,showboxes]{textpos}
 \else
-\usepackage[absolute,overlay]{textpos}
+  \usepackage[absolute,overlay]{textpos}
 \fi
 
 % Settings
@@ -59,32 +59,27 @@
 %%%%%	~Frame with huge centered text~		%%%%%
 %%%%%										%%%%%
 \newcommand{\framecard}[2][UniOrange]{
-    {\setbeamercolor{background canvas}{bg=#1}%
-      \begin{frame}[plain]%
+    \setbeamercolor{background canvas}{bg=#1}%
+    \begin{frame}[plain]%
         \vfill%
         \begin{center}%
-          {\color{white}\Huge\textbf{%
-            {#2}%
-          }}%
+            \color{white}\Huge\textbf{{#2}}
         \end{center}%
         \vfill%
-      \end{frame}%
-  }
+    \end{frame}%
 }
 
 %%%%%										%%%%%
 %%%%%	~Frame with background image~		%%%%%
 %%%%%										%%%%%
 \newcommand{\framepic}[3][1]{
-  {
     \usebackgroundtemplate{%
-    \tikz[overlay,remember picture] \node[opacity=#1, at=(current page.center)] {
-      \includegraphics[height=\paperheight]{#2}};
+        \tikz[overlay,remember picture] \node[opacity=#1, at=(current page.center)]{
+            \includegraphics[height=\paperheight]{#2}};
     }
     \begin{frame}[plain]
-      \huge{#3}
+        \huge{#3}
     \end{frame}
-  }
 }
 
 %%%%%										%%%%%
@@ -94,8 +89,9 @@
 % beamer/soul compatibility fix
 \makeatletter
 \newcommand\SoulColor{%
-  \let\set@color\beamerorig@set@color
-  \let\reset@color\beamerorig@reset@color}
+    \let\set@color\beamerorig@set@color
+    \let\reset@color\beamerorig@reset@color
+}
 \makeatother
 
 \newcommand{\marker}[2][UniOrange]{{\SoulColor\sethlcolor{#1}\hl{#2}}}
