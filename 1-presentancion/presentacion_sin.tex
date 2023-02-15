@@ -1,0 +1,185 @@
+% Welcome! This is the unofficial University of Udine beamer template.
+
+% See README.md for more informations about this template.
+
+% This style has been developed following the "Manuale di Stile"
+% (Style Manual) of the University of Udine. You can find the
+% manual here: https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/identita-visiva/manuali-immagine-stile/manuale-stile
+
+% Note: for some reason, the RGB values specified in the manual
+% do NOT render correctly in Beamer, so they have been redefined
+% for this document using the high level chromo-optic deep neural 
+% quantistic technology offered by Microsoft Paint's color picker.
+
+% We defined four theme colors: UniBrown, UniBlue, UniGold
+% and UniOrange. For example, to write some uniud-brownish
+% text, just use: \textcolor{UniBrown}{Hello!}
+
+% Note that [usenames,dvipsnames] is MANDATORY due to compatibility
+% issues between tikz and xcolor packages.
+
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[Prácticas SIN]{Presentación de las Prácticas de Sistemas Inteligentes}
+
+\date[Febrero, 2022]{21 de febrero de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+\setstretch{1.5}
+
+\begin{frame}[label=firstframe]
+\titlepage
+\end{frame}
+
+
+\begin{frame}{Me presento}
+    \begin{itemize}
+        \item Aurora Esteban Toscano
+        \item \texttt{aestebant@uco.es}
+        \item Tutorías
+        \begin{itemize}
+            \item Martes de 9:00 a 12:00
+            \item Se recomienda contactar antes por email.
+            \item Fuera de este horario se puede concertar cita también.
+        \end{itemize}
+        \item Ubicación
+        \begin{itemize}
+            \item Laboratorio KDIS, sótano del edificio C2 Albert Einstein.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Organización de la asignatura}
+    Sistemas Inteligentes: 2º curso, 2º cuatrimestre
+    \begin{itemize}
+        \item Teoría: Carlos García Martínez
+        \item Prácticas:
+        \begin{itemize}
+            \item GM1 (martes 16:00-18:00): Aurora Esteban
+            \item GM2 (lunes 9:00-11:00): Aurora Esteban
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Planificación de las prácticas}
+    
+    \begin{itemize}
+        \item Sesiones de prácticas: 22 horas repartidas en 11 sesiones de prácticas
+        \begin{itemize}
+            \item Lunes de 09:00 a 11:00: sala A4, Aulario Averroes, Campus de Rabanales.
+            \item Martes de 16:00 a 18:00: sala A4, Aulario Averroes, Campus de Rabanales.
+        \end{itemize}
+        
+        \item Evaluación: 2 horas durante el período de exámenes oficial
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Modalidad de asistencia}
+    Dos escenarios:
+    \begin{itemize}
+        \item \textbf{Escenario A}: las clases serán \textbf{presenciales} en su horario habitual, a no ser que las medidas sanitarias extraordinarias limiten el aforo en el aula, en cuyo caso se pasaría a modalidad de clase síncrona online.
+        
+        \item \textbf{Escenario B}: las clases serán completamente no presenciales, impartiéndose de forma online en su horario habitual.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Contenidos de las prácticas}
+    \begin{itemize}
+        \item Búsqueda ciega $\rightarrow$ 1 semana.
+        \item CLIPS $\rightarrow$ 9 semanas
+        \item Aprendizaje por refuerzo $\rightarrow$ 1 semana
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Planificación de las prácticas}
+	\begin{minipage}{.5\linewidth}
+		\includegraphics[width=.9\linewidth]{graphics/moodle.png}
+	\end{minipage}
+	\begin{minipage}{.45\linewidth}
+		\begin{itemize}
+			\item Moodle de la asignatura: \url{https://moodle.uco.es/m2122/course/view.php?id=127}
+			\item Sección \textit{Prácticas} organizada por semanas.
+		\end{itemize}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Evaluación de las prácticas}
+\begin{minipage}{.65\linewidth}
+    40\% de la nota final.
+    Dos opciones:
+    \begin{itemize}
+        \item Evaluación continua: al final de la mayoría de sesiones de prácticas habrá una prueba de uno de los siguientes tipos:
+        \begin{itemize}
+            \item Cuestionario breve en Moodle.
+            \item Desafío: pequeñas pruebas de programación para entregar a final de clase.
+        \end{itemize}
+        \item Examen oficial: si no vas a seguir las prácticas o si no estás conforme con la calificación obtenida en la evaluación continua.
+    \end{itemize}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{.3\linewidth}
+    \begin{block}{OjO}
+        La nota de la evaluación continua no se guarda si vas a examen. La nota de prácticas final será la del examen.
+    \end{block}
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Cálculo de la nota de prácticas}
+    \begin{block}{OjO}
+    Los desafíos cuentan el doble que los Cuestionarios.
+    \end{block}
+    \begin{equation*}
+        \frac{\sum^n Cuestionarios + (\sum^m Desafios)\times 2}{n + m\times2}
+    \end{equation*}
+    Donde:
+    \begin{itemize}
+        \item $n$ es el número total de Cuestionarios a lo largo del curso.
+        \item $m$ es el número total de Desafíos a lo largo del curso.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplo de nota de prácticas}
+\setlength{\belowdisplayskip}{0pt}
+    \begin{itemize}
+        \item Notas en los Cuestionarios: $6$, $8$, $8.5$, $10$, $7.75$, $9.5$
+        \item Notas en los Desafíos: $8$, $7.5$, $6$, $5.75$
+    \end{itemize}
+    La nota final de prácticas será:
+    \begin{equation*}
+        \frac{49.75 + 27.25 \times 2}{6 + 4 \times 2} = 7.45
+    \end{equation*}
+    \begin{block}{OjO}
+        Esta fórmula dará una nota entre 0 y 10 que será un 40\% de la nota final. El 60\% restante es la teoría.
+    \end{block}
+\end{frame}
+
+
+\againframe{firstframe}
+\end{document}

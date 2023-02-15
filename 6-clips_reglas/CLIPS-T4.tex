@@ -1,0 +1,260 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 4: Reglas I}
+
+\date[Marzo, 2022]{21 de marzo de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Introducción a las reglas en CLIPS.
+		\item Conocer el ciclo básico de ejecución de reglas.
+		\item Profundizar en la definición y las propiedades de las reglas.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Introducción a las reglas en CLIPS}
+	Si el \textbf{antecedente} es cierto según los hechos almacenados en la \textbf{base de afirmaciones}, entonces \textbf{pueden} realizarse las acciones especificadas en el \textbf{consecuente}.
+	\begin{block}{Estructura de las reglas}
+		\centering
+		\textbf{Antecedente} $\Longrightarrow$ \textbf{Consecuente}
+	\end{block}
+	\begin{itemize}
+		\item Antecedente: cero o más \textit{cláusulas} que deben cumplirse para que la regla pueda ejecutarse (dispararse).
+		\item Consecuente: cero o más \textit{acciones} que se llevarán a cabo si la regla se dispara.
+		\begin{itemize}
+			\item Entre esas acciones puede estar crear (afirmar) más hechos, eliminar hechos obsoletos, llegar a conclusiones finales...
+		\end{itemize}
+	\end{itemize}
+	\begin{exampleblock}{Por ejemplo}
+		\centering
+		\texttt{SI} voy a clase \texttt{Y} atiendo \texttt{Y} hago los ejercicios $\Longrightarrow$ apruebo la asignatura
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Gestión de reglas}
+	Elementos de los Sistemas Expertos relacionados con la gestión de reglas:
+	\begin{itemize}
+		\item Base de conocimiento: conjunto de reglas que describen el problema a resolver.
+		\item Motor de inferencia: comprueba el antecedente de las reglas y la base de afirmaciones, decide la próxima regla a ejecutar y aplica su consecuente.
+		\item Activación o disparo de reglas: las reglas se disparan una única vez para un mismo conjunto de antecedentes $\Rightarrow$ evitar entrar en bucles.
+		\begin{itemize}
+			\item Entidad patrón: elementos en los que se basa la activación de una regla. Pueden ser hechos ordenados, plantillas e instancias de clases.
+			\item Elemento condicional (EC): son cada una de las condiciones que pueden encadenarse para componer el antecedente de la regla. 
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Definición de las reglas I}
+	\begin{block}{Constructor}
+		\begin{verbatim}
+(defrule <nombre> [comentario] [propiedades]
+      <elemento-condicional>*
+      =>
+      <acción>*
+)
+		\end{verbatim}
+	\end{block}
+	\begin{itemize}
+		\item Las reglas deben tener nombre único: si se define una regla con el mismo nombre que otra ya existente, la sobrescribirá.
+		\item No hay límite en el número de EC ni de acciones que una regla tenga.
+		\begin{itemize}
+			\item Si no hay ningún EC en el antecedente $\Rightarrow$ la regla se ejecuta automáticamente.
+			\item Si no hay ninguna acción en el consecuente $\Rightarrow$ ejecución sin consecuencias.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Definición de las reglas II}
+	\begin{itemize}
+		\item Las reglas se \textbf{activan} cuando se satisface su antecedente.
+		\begin{itemize}
+			\item Las reglas pueden activarse para distintos conjuntos de hechos $\rightarrow$ cada activación es una \textit{instancia de regla}.
+		\end{itemize}
+		\item Las instancias de reglas se almacenan en la \textbf{agenda}: muestra las reglas disponibles para ejecutar.
+		\begin{itemize}
+			\item Para cada instancia de regla muestra: la prioridad de la regla, el nombre y los índices de los hechos que la satisfacen.
+		\end{itemize}
+		\item Las reglas se \textbf{disparan} cuando el motor de inferencia decide ejecutar las acciones de sus consecuentes.
+		\item Se puede fijar la \textbf{prioridad} de una regla entre [-10000, 10000]. Prioridad por defecto: 0.
+		\item La \textbf{estrategia de resolución de conflictos} decide qué regla disparar la siguiente si hay varias con la misma prioridad. 
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\footnotesize
+		\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (defrule hola1 => (printout t "Hola Mundo" crlf))
+CLIPS> (defrule hola2 (initial-fact) => (prinout t "Hola Mundo iniciado" crlf)))
+CLIPS> (rules)
+hola1
+hola2
+CLIPS> (agenda)
+0      hola1: *
+CLIPS> (assert (initial-fact))
+CLIPS> (agenda)
+0      hola2: f-1
+0      hola1: *
+CLIPS> (run)
+Hola Mundo iniciado
+Hola Mundo
+CLIPS> (facts)
+f-1     (initial-fact)
+CLIPS> (agenda)
+CLIPS>
+		\end{verbatim}
+\end{frame}
+
+\begin{frame}{Ciclo básico de ejecución de reglas}
+	\begin{enumerate}
+		\item Las reglas activadas se disparan con el comando \texttt{(run [pasos])}
+		\item Si se ha alcanzado el máximo de pasos $\Rightarrow$ fin de la ejecución.
+		\item Se actualiza la agenda según la lista de hechos.
+		\item Se selecciona la próxima instancia de regla a ejecutar según prioridades y estrategia de resolución de conflictos.
+		\item Se dispara la instancia seleccionada, se incrementa el número de pasos y se elimina de la agenda.
+		\item Se vuelve al paso 2.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Ejemplo: \texttt{animales.clp}}
+	El ejercicio muestra una serie de reglas que, en base a un hecho, indican qué sonido hace un animal.
+	\begin{enumerate}
+		\item Descarga de Moodle el fichero y observa la estructura.
+		\item Carga el fichero en CLIPS:
+		\begin{enumerate}
+			\item Establece el directorio de trabajo a la ruta donde esté el fichero guardado. \texttt{Environment > Set Directory...}
+			\item Carga el fichero ejecutando \texttt{(load animales.clp)}
+			\item Inicializa la base de afirmaciones.
+		\end{enumerate}
+		\item ¿Cómo se ampliaría la base de conocimiento para contemplar otros animales como ovejas, vacas o patos?
+		\item ¿Cómo se adaptarían las reglas para trabajar con hechos no ordenados?
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Ejemplo: \texttt{coche.clp}}
+	El ejercicio muestra cómo se puede actualizar la información de la base de hechos por medio de reglas, tanto sobre hechos ordenados como no ordenados.
+	\begin{enumerate}
+		\item Descarga de Moodle el fichero y observa la base de conocimiento (dos reglas) y la base de afirmaciones (dos hechos).
+		\item ¿Cuál será el flujo de inferencia?
+		\item Carga el fichero en CLIPS e inicializa la base de afirmaciones.
+		\item Ejecutar el motor de inferencia en pasos de uno en uno y ver el resultado.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Propiedades de las reglas}
+	\begin{block}{Definición}
+\begin{verbatim}
+(defrule <nombre> [comentario]
+     (declare <propiedad>)
+     <antecedente> => <consecuente>
+)
+\end{verbatim}
+	\end{block}
+	\begin{itemize}
+		\item Las propiedades permiten alterar el comportamiento en la activación de las reglas.
+		\item La declaración de propiedades se incluye en la definición de la regla, después del comentario y antes del antecedente mediante la sentencia \texttt{(declare ...)}.
+		\item Una regla puede tener una sola sentencia \texttt{(declare)}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Propiedades de las reglas: prioridad}
+	\begin{center}
+		\texttt{(declare (salience <prioridad>))}
+	\end{center}
+	\begin{itemize}
+		\item La prioridad determina en qué orden se disparan varias reglas activadas.
+		\item Puede variar en el rango [-10000, 10000] $\rightarrow$ a mayor número, mayor prioridad y antes se dispara la regla.
+		\item Valor de prioridad por defecto: 0.
+		\item Evaluación de la prioridad
+		\begin{itemize}
+			\item Prioridad estática: en la definición de la regla. Comportamiento por defecto.
+			\item Prioridad dinámica: (1) cuando se activa la regla o (2) en cada ciclo de ejecución.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (defrule regla1 (declare (salience 10))
+    (initial-fact) => (printout t "Me ejecuto la primera" crlf)
+)
+CLIPS> (defrule regla2 (declare (salience -10))
+    (initial-fact) => (printout t "Me ejecuto la segunda" crlf)
+)
+CLIPS> (assert (initial-fact))
+CLIPS> (agenda)
+10     regla1: f-1
+-10    regla2: f-1
+CLIPS> (run)
+Me ejecuto la primera
+Me ejecuto la segunda
+	\end{verbatim}
+\end{frame}
+
+\begin{frame}{Ejercicio \texttt{pila.clp}}
+	\begin{enumerate}
+		\item Descarga de Moodle el fichero \texttt{pila.clp}, que implementa una estructura de datos tipo \textit{pila}.
+		\item Observa la estructura de las operaciones \textit{push} y \textit{pop} y su comportamiento una vez se ejecuta el programa.
+		\item ¿Por qué una regla tiene más prioridad que otra?
+		\item ¿Cómo se implementaría una estructura de datos tipo cola?
+		\item Si en la misma base de conocimiento coexisten las dos estructuras, ¿cómo indicamos al SE cuál de ellas queremos utilizar?
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre reglas}
+	\begin{itemize}
+		\item \texttt{(list-defrules)}: listar las reglas definidas.
+		\item \texttt{(ppdefrule <nombre>)}: muestra la definición de una regla dada.
+		\item \texttt{(undefrule <nombre>)}: suprime la regla dada.
+	\end{itemize}
+	Además, de recordatorio...
+	\begin{itemize}
+		\item \texttt{(load <fichero.clp>)}: carga un script en CLIPS.
+		\item \texttt{(facts)}: muestra la base de hechos o afirmaciones.
+		\item \texttt{(rules)}: muestra la base de conocimiento.
+		\item \texttt{(agenda)}: muestra la agenda.
+		\item \texttt{(reset)}: borra la base de hechos, reinicia los hechos iniciales y reinicia la agenda.
+		\item \texttt{(clear)}: borra toda la información del sistema.
+		\item \texttt{(exit)}: salir de CLIPS.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}

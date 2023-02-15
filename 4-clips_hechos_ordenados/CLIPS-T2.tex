@@ -1,0 +1,207 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[N-Reinas]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 2: Hechos I}
+
+\date[Marzo, 2022]{07 de marzo de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Introducir los \textit{hechos} en CLIPS.
+		\item Entender la diferencia entre hechos ordenados y no ordenados.
+		\item Operaciones sobre hechos.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Introducción a los hechos en CLIPS}
+	Los hechos representan la información actual del Sistema Experto: determinan cómo actúa y se actualizan según las condiciones cambian (las distintas reglas se disparan).
+	
+	Elementos de un hecho:
+	\begin{itemize}
+		\item Índice
+		\item Dirección
+		\item Valor(es)
+	\end{itemize}
+
+	Tipos de hechos:
+	\begin{itemize}
+		\item Ordenados: son una relación de valores. Por ejemplo:\\
+		\texttt{(lista huevos leche ``pimiento rojo'')}
+		\item No ordenados: su estructura se determina por una plantilla. Por ejemplo:\\
+		\texttt{(coche (marca Seat) (modelo Ibiza) (color amarillo))}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Afirmación de hechos}
+	Dos modalidades:
+	\begin{itemize}
+		\item \texttt{assert}: introducir en la base de hechos los hechos dinámicamente. Por ejemplo:\\
+		\texttt{(assert (a b c))}\\
+		\texttt{(assert (a) (b) (c))}\\
+		\texttt{(assert (a b) (c d) (e))}
+		\item \texttt{deffact}: inicializar la base de hechos al principio. Por ejemplo:\\
+		\texttt{(deffacts h1 ``hechos iniciales'' (a b) (c d) (e))}
+		\begin{itemize}
+			\item La base de hechos no se inicializará hasta ejecutar \texttt{(reset)}
+		\end{itemize}
+		\item OjO: no se puede insertar un hecho que ya existe.
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Afirmación de hechos no ordenados}
+	La estructura de los hechos no ordenados están determinados por una plantilla que permite:
+	\begin{itemize}
+		\item No tener que rellenar todos los campos para todos los hechos.
+		\item Rellenar los campos de forma desordenada.
+		\item Especificar el tipo de valor esperado para cada campo.
+		\item ... Se verán en detalle la semana que viene. 
+	\end{itemize}
+	\texttt{deftemplate}: definir la plantilla para los hechos de un cierto tipo. Por ejemplo:
+\begin{verbatim}
+(deftemplate coche ``Es un coche''
+    (slot marca)
+    (slot modelo)
+    (slot color)
+)
+(assert (coche (marca Seat)))
+\end{verbatim}
+\end{frame}
+
+\begin{frame}{Visualización de hechos}
+	\texttt{(facts)}: muestra el estado actual de la base de hechos con formato \texttt{f-<idx> (hecho)}. También se puede utilizar para filtrar:
+	\begin{itemize}
+		\item \texttt{(facts <indice minimo>)}
+		\item \texttt{(facts <indice minimo> <indice maximo>)}
+	\end{itemize}
+	\texttt{(watch facts)}: es una orden que sirve para depuración: muestra cómo los hechos son insertados o eliminados de la base de hechos:\\
+	\texttt{==>}: Hecho entrando a la base de hechos.\\
+	\texttt{<==}: Hecho saliendo de la base de hechos.
+	\begin{itemize}
+		\item Para desactivar: \texttt{(unwatch facts)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Modificación de hechos}
+	Para modificar un hecho primero se debe capturar su dirección: operador \texttt{<-}.
+	\begin{minipage}{.4\linewidth}
+		\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule comenzar
+   ?h <- (iniciar_programa)
+    =>
+   (retract ?h)
+   (printout t ``Iniciando...'' crlf)
+)
+		\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+	\begin{minipage}{.5\linewidth}
+		Operaciones de modificación:
+		\begin{itemize}
+			\item \texttt{retract}: eliminar el hecho.\\
+			\texttt{(retract 1) (retract 4 7) (retract *)}
+			\item Sólo para hechos ordenados:
+			\begin{itemize}
+				\item \texttt{modify}: modificar una o varias casillas del hecho.\\
+				\texttt{(modify 1 (color rojo))}
+				\item \texttt{duplicate}: duplicar el hecho cambiando al menos una casilla.
+				\texttt{(duplicate 1 (color rojo))}
+			\end{itemize}
+		\end{itemize}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Restablecimiento del entorno CLIPS}
+	Existen dos grados de restablecimiento de CLIPS:
+	\begin{itemize}
+		\item \texttt{(reset)}: restablece la base de hechos, eliminando los hechos creados con \texttt{assert} y volviendo a añadir los definidos en \texttt{deffacts}.
+		
+		\item \texttt{(clear)}: elimina la base de hechos, la base de conocimiento y los constructores definidos. Restablece completamente el sistema.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Legibilidad de hechos}
+	Buenas prácticas para aumentar la legibilidad de hechos en CLIPS:
+	\begin{itemize}
+		\item Utilizar comentarios en los constructores \texttt{deffacts}.
+		\item Utilizar espacios, saltos de línea y tabulación, no afectan al programa.
+		\begin{itemize}
+			\item Dentro de una cadena los espacios sí cuentan.
+		\end{itemize}
+		\item En los hechos ordenados, destinar el primer campo a nombrar la relación.
+		\begin{itemize}
+			\item Peor: (leche pan huevos), (perro), (gato)
+			\item Mejor: (lista-compra leche pan huevos) (es-animal perro) (es-animal gato)
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (assert (color rojo))
+<Fact-0>
+CLIPS> (assert (color azul) (valor (+ 3 4)))
+<Fact-2>
+CLIPS> (assert (color rojo))
+FALSE
+CLIPS> (deftemplate estado (slot temperatura) (slot presion))
+CLIPS> (assert (estado (temperatura alta) (presion baja)))
+<Fact-3>
+CLIPS> (facts)
+f-0     (color rojo)
+f-1     (color azul)
+f-2 (valor 7)
+f-3 (estado (temperatura alta) (presion baja))
+\end{verbatim}
+\end{frame}
+
+\begin{frame}{Ejemplo: ahora tú}
+	\begin{itemize}
+		\item Muestra los hechos con índice >=1
+		\item Muestra los hechos 1 a 2
+		\item Crea un nuevo hecho que sea como el 3 pero con (temperatura baja)
+		\item Elimina el hecho 1
+		\item Añade un hecho (color verde)
+		\item Elimina todos los hechos
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}

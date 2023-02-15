@@ -1,0 +1,172 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 6: Módulos}
+
+\date[Marzo, 2022]{28 de marzo de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Conocer la estructuración en \textit{módulos} de CLIPS.
+		\item Extender el conocimiento del ciclo de ejecución a la presencia de varios módulos.
+		\item Dirigir el ciclo de ejecución entre módulos.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Introducción a los módulos en CLIPS}
+	Los módulos en CLIPS permiten facilitar el control del razonamiento de forma modular agrupando constructores (hechos, reglas, etc.)
+	
+	\begin{block}{Definición}
+		\begin{verbatim}
+(defmodule <nombre> [comentario]
+      <(export <port-item)>*
+      <(import <modulo> <port-item>)>*
+)
+<port-item>:: ?ALL | ?NONE | <constructor> ?ALL | <constructor> ?NONE |
+           <constructor> <nombre>
+<constructor>:: deftemplate | defclass | defglobal | deffunction | deffgeneric
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Propiedades de los módulos}
+	\begin{itemize}
+		\item Siempre existe un módulo por defecto \texttt{MAIN}.
+		\item El \textit{foco} determina cuál es el \textit{módulo activo}, es decir, el modo en ejecución.
+		\item Los módulos sólo pueden borrarse con la orden \texttt{(clear)}
+		\item Para especificar a qué módulo pertenece un elemento de CLIPS, dos aproximaciones:
+		\begin{itemize}
+			\item Referencia explícita: \texttt{<módulo>::<elemento>}.
+			\item Referencia implícita: establecer el \textit{foco} en el módulo previamente, con lo que todos los elementos para los que no se especifique lo contrario se asumirán que están en el \textit{módulo activo}.
+		\end{itemize}
+		\item \texttt{(get-current-module)}: muestra el módulo actual.
+		\item \texttt{(set-current-module <módulo>)}: cambia al módulo especificado.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\begin{minipage}[t]{0.47\textwidth}
+		\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (defmodule A)
+CLIPS> (assert (dato 55))
+<Fact-1>
+CLIPS> (defmodule B)
+CLIPS> (assert (dato 33))
+<Fact-2>
+CLIPS> (defrule busca55
+(dato 55) => )
+CLIPS> (facts)
+f-2     (dato 33)
+For a total of 1 fact.
+		\end{verbatim}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.47\textwidth}
+		\begin{verbatim}
+CLIPS> (agenda)
+CLIPS> (list-defmodules)
+MAIN
+A
+B
+For a total of 3 defmodules.
+CLIPS> (set-current-module A)
+B
+CLIPS> (facts)
+f-1     (dato 55)
+For a total of 1 fact.
+CLIPS> (rules)
+CLIPS> 
+		\end{verbatim}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Importación y exportación de elementos}
+	Los elementos exportables entre módulos se tienen que definir:
+	\begin{enumerate}\small
+		\item Como exportables en el módulo de origen.
+		\item Como importables en el módulo de destino.
+	\end{enumerate}
+	Posibles ejemplos:
+	\begin{itemize}\footnotesize
+		\item \texttt{(defmodule A (export ?ALL))} / \texttt{(defmodule B (export ?NONE) (import A deftemplate x))}
+		\item \texttt{(defmodule A (export deftemplate ?ALL))} / \texttt{(defmodule B (import A deftemplate ?ALL))}
+		\item \texttt{(defmodule A (export ?ALL))} / \texttt{(defmodule B (export ?ALL))} / \texttt{(defmodule C (import A deftemplate datoA) (import B deftemplate datoB))}
+	\end{itemize}
+	\begin{block}{OjO}
+		Los hechos de un módulo pueden exportarse a otro mediante su \texttt{deftemplate}. Las operaciones que se hagan sobre un hecho tienen efecto en todos los módulos en los que esté.
+	\end{block}
+\end{frame}
+
+\begin{frame}{Ciclo de ejecución con módulos I}
+	\begin{itemize}
+		\item Cada módulo tiene su propia \textbf{base de conocimientos} y su propia \textbf{agenda} no compartible con otros.
+		\item \texttt{(reset)}: restablece las bases de hechos de todos los módulos y devuelve el foco al módulo por defecto \texttt{MAIN}.
+		\item \texttt{(clear)}: restablece completamente el sistema y devuelve el foco al módulo por defecto \texttt{MAIN}.
+		\item \texttt{(run)} ejecuta la agenda del módulo activo $\rightarrow$ las instancias de sus propias reglas que se hayan activado para su propia base de hechos.
+		\item Los módulos se organizan en una pila: conforme un módulo acaba pasa al siguiente de la pila $\rightarrow$ el programa termina cuando no quedan módulos activos.
+		\begin{itemize}
+			\item \texttt{(get-focus-stack)}: muestra el estado actual de la pila de módulos activos.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ciclo de ejecución con módulos II}
+	Formas de alterar el ciclo de ejecución normal:
+	\begin{itemize}
+		\item Orden \texttt{focus} en el consecuente de una regla: incluye un nuevo módulo en la pila de módulos activos y pasa el control a la agenda de ese módulo.
+		\item Orden \texttt{return} en consecuente de una regla: termina antes de tiempo con la agenda del módulo actual para pasar el control a la del siguiente módulo activo en la pila.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplo}
+	\begin{itemize}
+		\item Descarga de Moodle el fichero de fichero \texttt{modulos1.clp}. Observa la estructura y cárgalo en CLIPS. Ve ejecutando la agenda de uno en uno, atendiendo a cómo cambian las bases de afirmaciones y el foco del programa.
+		\item Descarga de Moodle el fichero de fichero \texttt{modulos2.clp}. Observa la estructura y cárgalo en CLIPS. Ve ejecutando la agenda de uno en uno, atendiendo a cómo cambian las bases de afirmaciones y el foco del programa.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre módulos}
+	\begin{itemize}
+		\item \texttt{(list-defmodules)}: muestra todos los módulos definidos en el sistema.
+		\item \texttt{(ppdefmodule <módulo>)}: muestra la definición de un módulo dado.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}

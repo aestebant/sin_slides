@@ -1,0 +1,391 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.3cm]Tema 7: Funciones y funciones genéricas}
+
+\date[Marzo, 2022]{18 de abril de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Aprender a implementar funciones en CLIPS.
+		\item Aprender a implementar funciones genéricas en CLIPS.
+		\item Conocer las principales funciones y acciones del sistema en CLIPS.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Introducción a las funciones en CLIPS}
+	Las funciones en CLIPS agrupan una secuencia de acciones, o expresiones, a ejecutar de forma secuencial mediante una única llamada a función.
+	
+	Típicamente reciben una entrada en forma de parámetros de entrada y producen una salida en base a dichos parámetros.
+	
+	\begin{block}{Definición}
+		\begin{verbatim}
+(deffunction <nombre> [comentario]
+      (<parámetro regular>* [parámetro comodín])
+      <acción>*
+)
+<parámetro regular>:: <variable mono-campo>
+<parámetro irregular>:: <variable multi-campo>
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Propiedades de las funciones}
+	\begin{itemize}
+		\item Las funciones reciben una lista de cero o más parámetros regulares: \textbf{obligatorios}.
+		\item Las funciones pueden recibir parámetros adicionales recogidos en el parámetro comodín: \textbf{opcionales}.
+		\item Las funciones deben tener un nombre único y declararse antes de ser llamadas.
+		\item Las funciones devuelven el resultado de evaluar su última acción y \texttt{FALSE} si no tienen ninguna acción.
+		\item Las funciones pueden llamarse a sí mismas: útil para implementar un \textbf{comportamiento recursivo}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\begin{verbatim}
+CLIPS> (deffunction formatea-args
+    (?a ?b $?c)
+    (printout t "Tengo dos parametros obligatorios: " ?a " y " ?b
+    ". Ademas de " (length$ $?c) " opcionales: " $?c crlf)
+)
+CLIPS> (formatea-args hola adios)
+Tengo dos parametros obligatorios: hola y adios. Ademas de 0 opcionales: ()
+CLIPS> (formatea-args hola adios "buenas tardes" 33)
+Tengo dos parametros obligatorios: hola y adios. Ademas de 2 opcionales: ("buenas
+tardes" 33)
+CLIPS>
+	\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo recursivo}
+	\small
+	\begin{verbatim}
+CLIPS> (deffunction factorial
+    (?a)
+    (if (or (not (integerp ?a)) (< ?a 0)) then
+       (printout t "Factorial error: " ?a crlf)
+     else
+       (if (= ?a 0) then 1
+        else (* ?a (factorial (- ?a 1)))
+       )
+   )
+)
+CLIPS> (factorial 4)
+24
+CLIPS> (factorial -3)
+Factorial error: -3
+CLIPS> (factorial adios)
+Factorial error: adios
+	\end{verbatim}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre funciones}
+	\begin{itemize}
+		\item \texttt{(list-deffunctions)}: muestra todas las funciones definidas en el sistema.
+		\item \texttt{(ppdeffunction <función>)}: muestra la definición de una función dada.
+		\item \texttt{(undeffunction <función>)}: borra la función dada.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones genéricas}
+	Las funciones genéricas es la forma que tiene CLIPS de programar funciones que variarán su comportamiento dependiendo de los parámetros con los que se llamen: \textbf{sobrecarga de funciones}.
+	\begin{itemize}
+		\item Las funciones genéricas se componen de una \textbf{cabecera} y de una lista de \textbf{métodos}: cada método tiene una lista de parámetros diferentes.
+		\item Declaración de la cabecera:
+		\begin{itemize}
+			\item Explícitamente: usando el constructor \texttt{defgeneric}.
+			\item Implícitamente: definiendo al menos un método de la función mediante \texttt{defmethod}.
+		\end{itemize}
+		\item Los métodos tienen un comportamiento similar a las funciones "normales" de CLIPS, con la salvedad de estar agrupados en una misma \textit{familia} y las ventajas:
+		\begin{itemize}
+			\item Pueden sobrescribir o ampliar funciones del sistema.
+			\item Pueden tener restricciones sobre los parámetros que reciben.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Funciones genéricas: definición}
+	\begin{block}{Cabecera}
+		\texttt{(defgeneric <nombre> [comentario])}
+	\end{block}
+	\begin{block}{Métodos}
+		\small
+		\begin{verbatim}
+(defmethod <nombre> [índice] [comentario]
+     (<restriccion mono-campo>* [restriccion multi-campo])
+     <acción>*
+)
+<restriccion mono-campo> :: <variable mono-campo> | (<variable
+      mono-campo> <tipo>* [consulta])
+<restriccion multi-campo> :: <variable multi-campo> | (<variable
+      multi-campo> <tipo>* [consulta])
+<tipo> :: INTEGER | FLOAT | NUMBER | SYMBOL | STRING | LEXEME
+<consulta> :: <variable global> | <llamada a función>
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Propiedades de las funciones genéricas}
+	\begin{itemize}
+		\item Identificación de un método:
+		\begin{itemize}
+			\item Nombre + lista de parámetros.
+			\item Nombre + índice.
+		\end{itemize}
+		\item A cada método se le asigna un índice único dentro de una función genérica.
+		\item Si se define un método con el mismo nombre y parámetros que otro existente, se sobrescribe el más antiguo.
+		\item Reemplazar un método por otro con una definción de parámetros distinta: especificar el índice del método a reemplazar al definir el nuevo.
+		\item Restricciones sobre parámetros:
+		\begin{itemize}
+			\item De \textit{tipo}: limita los tipos de datos admisibles.
+			\item De \textit{consulta}: comprobación lógica sobre el argumento que debe devolver distinto de \texttt{FALSE}.
+			\item Las restricciones se evalúan de izquierda a derecha.
+			\item Si una restricción no se cumple, dejan de comprobarse las que siguen.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplos de restricciones}
+	\begin{itemize}
+		\item Ningún parámetro: \texttt{(defmethod m1 ())}
+		\item Un parámetro de cualquier tipo: \texttt{(defmethod m1 (?a))}
+		\item Un parámetro entero: \texttt{(defmethod m1 ((?a INTEGER)))}
+		\item Un parámetro entero o símbolo: \texttt{(defmethod m1 ((?a INTEGER SYMBOL)))}
+		\item Un parámetro entero y par: \texttt{(defmethod m1 ((?a INTEGER (evenp ?a))))}
+		\item Un parámetro entero o símbolo y otro de cualquier tipo: \texttt{(defmethod m1 ((?a INTEGER SYMBOL) ?b))}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\begin{verbatim}
+CLIPS> (defmethod + ((?a STRING) (?b STRING))
+    (str-cat ?a ?b))
+CLIPS> (defmethod + ((?a STRING) (?b NUMBER))
+    (printout t "No se que hacer con eso." crlf))
+CLIPS> (list-defmethods)
++ #SYS1  (NUMBER) (NUMBER) ($? NUMBER)
++ #2  (STRING) (STRING)
++ #3  (STRING) (NUMBER)
+CLIPS> (+ "Hola " "Mundo")
+"Hola Mundo"
+	\end{verbatim}
+	\begin{itemize}
+		\item \textbf{Ejercicio:} ¿Qué pasará si se llama a la función con (+ <número> <cadena>)?
+		\item \textbf{Ejercicio:} ¿Cómo se extendería la función para que si se llama con dos símbolos los devuelva concatenados con un espacio en medio?
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{\textit{Generic dispatch}}
+	\textit{Generic dispatch} o \textit{ejecución genérica}: proceso por el que CLIPS decide qué método de la función genérica ejecutar según la llamada realizada.
+	\begin{itemize}
+		\item Un método es aplicable a una llamada de función genérica si:
+		\begin{enumerate}
+			\item Su nombre coincide con el de la función genérica.
+			\item Acepta al menos tantos argumentos como se pasan en la llamada.
+			\item Cada argumento satisface las restricciones de parámetro correspondientes.
+		\end{enumerate}
+		\item La precedencia entre dos métodos se determina mediante sus restricciones de parámetro: el método con las restricciones más específicas tiene más precedencia.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo}
+	\small
+	\begin{verbatim}
+CLIPS> (defmethod m1 () m1-1)
+CLIPS> (defmethod m1 (?a) m1-2)
+CLIPS> (defmethod m1 ((?a INTEGER)) m1-3)
+CLIPS> (defmethod m1 ((?a INTEGER SYMBOL)) m1-4)
+CLIPS> (defmethod m1 ((?a INTEGER STRING)) m1-5)
+CLIPS> (defmethod m1 ((?a INTEGER (evenp ?a))) m1-6)
+CLIPS> (m1)
+m1-1
+CLIPS> (m1 2.5)
+m1-2
+CLIPS> (m1 25)
+m1-3
+CLIPS> (m1 hola)
+m1-4
+CLIPS> (m1 22)
+m1-6
+	\end{verbatim}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre funciones genéricas}
+	\begin{itemize}
+		\item \texttt{(list-defgenerics)}: muestra todas las funciones genéricas definidas en el sistema.
+		\item \texttt{(ppdefgeneric <función>)}: muestra la definición de una función genérica dada.
+		\item \texttt{(undefgeneric <función>)}: borra la función genérica dada, incluyendo todos sus métodos.
+		\item \texttt{(list-defmethods <función>)}: muestra los métodos definidos para una función genérica.
+		\item \texttt{(ppdefmethod <función> <índice>)}: muestra la definición de un método de una función genérica.
+		\item \texttt{(undefmethod <función> <índice>)}: borra un método de una función genérica dada.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema}
+	CLIPS predefine múltiples funciones que pueden usarse para las acciones que se programen tanto en funciones del usuario como en funciones genéricas.\\[.5cm]
+	
+	\begin{minipage}{.35\linewidth}
+		\begin{itemize}
+			\item Funciones predicado
+			\item Funciones matemáticas
+			\item Funciones multi-campo
+			\item Funciones de cadena
+			\item Funciones de entrada/salida
+			\item Funciones procedurales
+		\end{itemize}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.55\linewidth}
+		\begin{block}{OjO}
+			Recuerda que tanto las funciones como los métodos de las funciones genéricas pueden contener varias acciones en su cuerpo. Devolverán el resultado de su última acción o \texttt{FALSE} si no hay acciones.
+		\end{block}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: predicado}
+	\begin{itemize}
+		\item Tipo de dato: \texttt{(integerp | floatp | numberp | symbolp | stringp | lexemep <expresión>)}
+		\item Es multi-campo: \texttt{(multifieldp <expresión>)}
+		\item Son misma expresión o distinta: \texttt{(eq | neq <expresión> <expresión>+)}
+		\item Número par o impar: \texttt{(evenp | oddp <expresión>)}
+		\item Comparaciones numéricas: \texttt{(= | <> | < | <= | > | >= <expresión> <expresión>+)}
+		\item Lógica booleana: \texttt{(not <expresión>)}, \texttt{(and | or <expresión>+)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: op. matemáticas}
+	\begin{itemize}
+		\item Suma, resta, multiplicación o división: \texttt{(+ | - | * | / <expresión> <expresión>+)}
+		\item División entera: \texttt{(div <expresión> <expresión>)}
+		\item Resto o módulo de la división: \texttt{(mod <expresión> <expresión>)}
+		\item Raíz cuadrada: \texttt{(sqrt <expresión>)}
+		\item Potencia: \texttt{(** <expresión> <expresión>)}
+		\item Redondeo: \texttt{(round <expresión>)}
+		\item Valor absoluto: \texttt{(abs <expresión>)}
+		\item Máximo o mínimo de un conjunto: \texttt{(max | min <expresión>+)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: multicampos I}
+	\begin{itemize}
+		\item Crear un multi-campo: \texttt{(create\$ <expresión>*)}
+		\item Longitud de un multi-campo: \texttt{(length\$ <expresión multi>)}
+		\item Obtener $n$-ésimo: \texttt{(nth\$ <posición> <expresión multi>)}
+		\item Es miembro: \texttt{(member\$ <expresión> <expresión multi>)}
+		\item Es subconjunto: \texttt{(subsetp <expresión multi> <expresión multi>)}
+		\item Extraer subconjunto: \texttt{(subseq\$ <expresión multi> <posición ini> <posición fin>)}
+		\item Extraer primero: \texttt{(first\$ <expresión multi>)}
+		\item Todos menos el primero: \texttt{(rest\$ <expresión multi>)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: multicampos II}
+	\begin{itemize}
+		\item Transformar una cadena en multicampo: \texttt{(explode\$ <cadena>)}
+		\item Tranformar un multicampo en cadena: \texttt{(implode\$ <expresión multi>)}
+		\item Insertar: \texttt{(insert\$ <expresión multi> <posición ini> <expresión>+)}
+		\item Borrar: \texttt{(delete\$ <expresión multi> <posición ini> <posición fin>)}
+		\item Reemplazar: \texttt{(replace\$ <expresión multi> <posición ini> <posición fin> <expresión>+)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: cadenas}
+	\begin{itemize}
+		\item Concatenar en una cadena: \texttt{(str-cat <expresión>+)}
+		\item Concatenar en un símbolo: \texttt{(sym-cat <expresión>+)}
+		\item Longitud de una cadena o símbolo: \texttt{(str-length <expresión>)}
+		\item Extraer cadena: \texttt{(sub-string <posición ini> <posición fin> <cadena>)}
+		\item Comparación lógica de cadenas o símbolos: \texttt{(str-compare <expresión> <expresión>)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: entrada/salida}
+	\begin{itemize}
+		\item Abrir un fichero: \texttt{(open <fichero> <nombre> <modo>)}
+		\begin{itemize}
+			\item Posibles modos: "\texttt{r}" (lectura), "\texttt{w}" (escritura), "\texttt{r+}" (lectura y escritura), "\texttt{a}" (añadir al final),
+		\end{itemize}
+		\item Cerrar un fichero: \texttt{(close <nombre>)}
+		\item Escribir en un fichero: \texttt{(printout <nombre> <expresión>+)}
+		\begin{itemize}
+			\item Escritura por consola: \texttt{(printout t <expresión>+)}
+		\end{itemize}
+		\item Leer de un fichero: \texttt{(read <nombre>)}
+		\begin{itemize}
+			\item Leer desde la consola la entrada del usuario \texttt{(read)}
+		\end{itemize}
+		\item Leer una línea de un fichero: \texttt{(readline <nombre>)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Funciones del sistema: procedurales}
+	\begin{itemize}
+		\item Definir una variable: \texttt{(bind <variable> <expresión>)}
+		\item Sentencia condicional: \texttt{(if <expresión> then <acción>* [else <acción>*])}
+		\item Sentencia condicional múltiple: \texttt{(switch <expresión prueba> (case <expresión comprobación then <acción>*)+ [(default <acción>*)])}
+		\item Bucle mientras: \texttt{(while <expresión> [do] <acción>*)}
+		\item Bucle para: \texttt{(loop-for-count <rango> [do] <acción>*)}
+		
+		\texttt{<rango>:: <idx fin> | (<variable> <idx fin>) | (<variable> <idx ini> <idx fin>)}
+		\item Salir de una función: \texttt{(return [<expresión>])}
+		\item Salir de un bucle: \texttt{(break)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplos}
+	\begin{itemize}
+		\item Estudia un ejemplo de uso de bucles en funciones en el fichero \texttt{bucles.clp} disponible en Moodle.
+		\item Estudia un ejemplo de petición de datos por pantalla en el fichero \texttt{transformaciontemporal.clp} disponible en Moodle.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ejercicios}
+	\begin{enumerate}
+		\item Crear una función genérica para extraer N elementos de una cadena o de un valor multicampo. La función recibirá como parámetros en los dos casos el índice del primer y último elemento a extraer y como tercer parámetro la cadena o multicampo sobre los que realizar la extracción.
+		
+		\item Crear una función que, utilizando recursividad, calcule el $n$-ésimo número par (considerando el 2 como primer par). La función recibe un parámetro, la posición que se desea obtener.
+		
+		\item Crear una función que, utilizando recursividad, calcule el $n$-ésimo número impar (considerando el 1 como primer impar).
+		
+		\item Crear una función que, utilizando recursividad, calcule la suma de los $n$ primeros números pares.
+		
+		\item Crear una función que, utilizando recursividad, calcule el $n$-ésimo término de la sucesión de números triangulares.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}

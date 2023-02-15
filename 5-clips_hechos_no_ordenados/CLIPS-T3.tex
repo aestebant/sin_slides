@@ -1,0 +1,255 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 3: Hechos II}
+
+\date[Marzo, 2022]{14 de marzo de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Profundizar en los \textit{hechos no ordenados} en CLIPS.
+		\item Profundizar en la afirmación de hechos en CLIPS.
+		\item Conocer los comandos de gestión de hechos en CLIPS.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Introducción a los hechos en CLIPS}
+	Los hechos representan la información actual del Sistema Experto: determinan cómo actúa y se actualizan según las condiciones cambian (las distintas reglas se disparan).
+
+	Tipos de hechos:
+	\begin{itemize}
+		\item Ordenados: son una relación de valores. Por ejemplo:\\
+		\texttt{(lista huevos leche ``pimiento rojo'')}
+		\item No ordenados: su estructura se determina por una plantilla.
+		%\texttt{(coche (marca Seat) (modelo Ibiza) (color amarillo))}
+	\end{itemize}
+	\begin{minipage}{.35\textwidth}
+		\begin{minipage}{.9\textwidth}
+			Los hechos no ordenados permiten representar información con la relación entre conceptos y atributos.
+		\end{minipage}
+	\end{minipage}
+	\begin{minipage}{.55\textwidth}
+		\begin{exampleblock}{Por ejemplo}
+			\footnotesize
+			\begin{verbatim}
+(deftemplate coche ``Es un coche''
+    (slot marca)
+    (slot modelo)
+    (slot color))
+(assert (coche (marca Seat)))
+(assert (coche (marca Audi) (modelo A1) (color rojo)))
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{Propiedades de las plantillas de hechos}
+	\begin{block}{Constructor}
+		\begin{verbatim}
+(deftemplate <nombre> [comentario]
+      (slot|multislot <nombre> [atributos*])+
+)
+		\end{verbatim}
+	\end{block}
+	\begin{itemize}
+		\item Las plantillas deben tener nombre único: si se define una plantilla con el mismo nombre que otra ya existente, la sobrescribirá.
+		\item Las plantillas no se pueden redefinir mientras estén en uso: si un hecho o una regla se base en ella.
+		\item Las plantillas se componen de un numero variable de \textit{campos}:
+		\begin{itemize}
+			\item Monocampos o campos simples: \texttt{slot}.
+			\item Multicampos o campos compuestos: \texttt{multislot}.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo: \texttt{persona.clp}}
+	\begin{enumerate}
+		\item Descargar de Moodle el fichero y observar la estructura de la plantilla.
+		\begin{verbatim}
+(deftemplate persona "datos de una persona"
+     (slot nombre)
+     (slot edad)
+     (multislot direccion)
+)
+		\end{verbatim}
+		\item Cargar la plantilla en CLIPS.
+		\item Afirmar los hechos:
+		\begin{itemize}
+			\item Persona cualquiera de 34 años.
+			\item Juan, de 26 años.
+			\item Marta, de 21 años y dirección Avd de Cervantes.
+		\end{itemize}
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Configuración de los campos en plantillas I}
+	\begin{itemize}
+		\item Valor por defecto. \texttt{(slot <nombre> (default|default-dynamic <por defecto>))}
+		\begin{itemize}
+			\item \texttt{default}: valor por defecto estático:
+			\begin{itemize}
+				\item \texttt{?DERIVE}: derivado de las restricciones del campo. Comportamiento por defecto.
+				\item Puede ser un valor primitivo.
+				\item \texttt{?NONE}: forzar que no se derive $\Rightarrow$ campo obligatorio.
+			\end{itemize} 
+			\item \texttt{default-dynamic}: valor por defecto dinámico. La expresión es evaluada cada vez que se crea una instancia.
+		\end{itemize}
+		\item Tipo del campo. \texttt{(slot <nombre> (type <tipo>))}
+			\begin{itemize}
+				\item Se permiten los tipos de datos primitivos: \texttt{INTEGER, FLOAT, NUMBER, SYMBOL, STRING, LEXEME}
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Configuración de los campos en plantillas II}
+	\begin{itemize}
+		\item Valores permitidos. \texttt{(slot <nombre> (allowed-... ))}
+		\begin{minipage}{.4\textwidth}
+			\begin{itemize}
+				\item \texttt{allowed-values}
+				\item \texttt{allowed-numbers}
+				\item \texttt{allowed-lexemes}
+			\end{itemize}
+		\end{minipage}
+		\begin{minipage}{.4\textwidth}
+			\begin{itemize}\setlength\itemsep{1pt}
+				\item \texttt{allowed-integers}
+				\item \texttt{allowed-floats}
+				\item \texttt{allowed-symbols}
+				\item \texttt{allowed-strings}
+			\end{itemize}
+		\end{minipage}
+		\item Rango de valores permitido. \texttt{(slot <nombre> (range <min> <max>))}
+		\item Cardinalidad permitida en campos múltiples. \texttt{(multislot <nombre> (cardinality <min> <max>))}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo: \texttt{equipo.clp}}
+	\begin{enumerate}
+		\item Descargar de Moodle el fichero y observar la estructura de la plantilla.
+\begin{verbatim}
+(deftemplate equipo "datos de un equipo de futbol"
+    (slot id (default-dynamic (gensym*)))
+    (slot nombre (type STRING) (default ?NONE))
+    (slot posicion (type INTEGER) (range 1 10) (default 5))
+    (multislot equipacion (type SYMBOL) (allowed-symbols blanco rojo
+    azul verde amarillo))
+    (multislot plantilla (type LEXEME) (cardinality 3 7))
+)
+\end{verbatim}
+		\item Cargar la plantilla en CLIPS. Cargar los hechos definidos en \texttt{liga}
+		\item ¿Qué pasa con el campo \texttt{id}? ¿Y con el campo \texttt{nombre}?
+		\item ¿Cuál es la posición máxima que puede ocupar un equipo?
+		\item ¿Cuántos jugadores pueden componer un equipo?
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre plantillas}
+	\begin{itemize}
+		\item \texttt{(list-deftemplates)}: listar las plantillas usadas por el sistema.
+		\item \texttt{(ppdeftemplate <nombre>)}: muestra la definición de una plantilla existente.
+		\item \texttt{(undeftemplate <nombre>)}: borra una plantilla existente.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Afirmación de hechos}
+	Dos modalidades:
+	\begin{itemize}
+		\item \texttt{assert}: introducir en la base de hechos los hechos dinámicamente. Por ejemplo:\\
+		\texttt{(assert (a b c))}\\
+		\texttt{(assert (a) (b) (c))}\\
+		\texttt{(assert (a b) (c d) (e))}
+		\item \texttt{deffacts}: inicializar la base de hechos al principio. Por ejemplo:\\
+		\texttt{(deffacts h1 ``hechos iniciales'' (a b) (c d) (e))}
+		\begin{itemize}
+			\item La base de hechos no se inicializará hasta ejecutar \texttt{(reset)}
+		\end{itemize}
+		\item OjO: no se puede insertar un hecho que ya existe.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{La orden \texttt{deffacts}}
+	\begin{block}{Constructor}
+		\begin{verbatim}
+(deffacts <nombre> [comentario]
+    <hecho>+
+)
+		\end{verbatim}
+	\end{block}
+	\begin{itemize}
+		\item Pueden existir múltiples constructores \texttt{deffacts}, cada uno con cualquier número de hechos tanto ordenados como no ordenados.
+		\item Si se carga un nuevo \texttt{deffacts} con el mismo nombre de otro existente, sobrescribe a los hechos que éste definiera.
+		\item Puede contener hechos con expresiones dinámica. El hecho tomará el valor de la expresión resultante.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Otras gestiones sobre \texttt{deffacts}}
+	\begin{itemize}
+		\item \texttt{(list-deffacts)}: listar los constructores de hechos definidos.
+		\item \texttt{(ppdeffacts <nombre>)}: muestra la definición de un constructor de hechos dado.
+		\item \texttt{(undeffacts <nombre>)}: suprime los hechos afirmados en un constructor de hechos dado.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Por ejemplo}
+	\footnotesize
+	\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (deffacts EstadoCoche (coche motor "a punto") (coche bujias "limpias"))
+CLIPS> (assert (coche neumaticos "gastados"))
+<Fact-1>
+CLIPS> (reset)
+CLIPS> (facts)
+f-1     (coche motor "a punto")
+f-2     (coche bujias "limpias")
+CLIPS> (assert (coche luces "funcionan"))
+<Fact-3>
+CLIPS> (deffacts EstadoCasa (casa salon "ordenado"))
+CLIPS> (reset)
+CLIPS> (facts)
+f-1     (coche motor "a punto")
+f-2     (coche bujias "limpias")
+f-3     (casa salon "ordenado")
+CLIPS> (list-deffacts)
+EstadoCoche
+EstadoCasa
+	\end{verbatim}
+\end{frame}
+
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}

@@ -1,0 +1,582 @@
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{csquotes}
+\usepackage[skip=0pt]{caption}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{booktabs}
+\usepackage{tabularx, colortbl}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usetheme{uniud}
+
+%%% Some useful commands
+% pdf-friendly newline in links
+\newcommand{\pdfnewline}{\texorpdfstring{\newline}{ }} 
+% Fill the vertical space in a slide (to put text at the bottom)
+\newcommand{\framefill}{\vskip0pt plus 1filll}
+\renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
+
+
+\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 5: Reglas II}
+
+\date[Marzo, 2022]{28 de marzo de 2022}
+\author[A. Esteban]{\texorpdfstring{
+    \begin{minipage}{0.47\linewidth}
+        Aurora Esteban Toscano
+        \pdfnewline
+        \texttt{aestebant@uco.es}
+    \end{minipage}
+}{Aurora Esteban Toscano}
+}
+\institute{Grado en Ingeniería Informática, Universidad de Córdoba}
+\begin{document}
+
+%\setstretch{1.5}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos}
+	\begin{itemize}
+		\item Conocer las posibilidades de configuración del antecedente a través de los \textit{Elementos Condicionales} de CLIPS.
+		\item Aplicar los Elementos Condicionales tanto en hechos ordenados como en no ordenados.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Introducción a las reglas en CLIPS}
+	Si el \textbf{antecedente} es cierto según los hechos almacenados en la \textbf{base de afirmaciones}, entonces \textbf{pueden} realizarse las acciones especificadas en el \textbf{consecuente}.
+	\begin{block}{Estructura de las reglas}
+		\centering
+		\textbf{Antecedente} $\Longrightarrow$ \textbf{Consecuente}
+	\end{block}
+	\begin{itemize}
+		\item Antecedente: cero o más \textit{cláusulas} que deben cumplirse para que la regla pueda ejecutarse (dispararse).
+		\begin{itemize}
+			\item Entidad patrón: elementos en los que se basa la activación de una regla. Pueden ser hechos ordenados, plantillas e instancias de clases.
+			\item Elemento condicional (EC): son cada una de las condiciones que pueden encadenarse para componer el antecedente de la regla. 
+		\end{itemize}
+		\item Consecuente: cero o más \textit{acciones} que se llevarán a cabo si la regla se dispara.
+		\begin{itemize}
+			\item Entre esas acciones puede estar crear (afirmar) más hechos, eliminar hechos obsoletos, llegar a conclusiones finales...
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Tipos de Elementos Condicionales}
+	Los EC se basan en aplicar restricciones sobre entidades patrón y en la concatenación de sus resultados para construir el antecedente de la regla.
+	\begin{itemize}
+		\item \textbf{EC patrón:} verificar los elementos de una entidad patrón.
+		\item \textbf{EC test:} comprobar el valor devuelto por una función.
+		\item \textbf{EC and:} comprobar si en una cadena de EC todos se cumplen.
+		\item \textbf{EC or:} comprobar si en una cadena de EC al menos uno se cumple.
+		\item \textbf{EC not:} invertir el resultado del EC que contiene.
+		\item \textbf{EC exists:} comprobar si los EC que contiene se satisfacen por algún conjunto de hechos.
+		\item \textbf{EC forall:} comprobar si los EC que contiene se satisfacen para toda ocurrencia de otro EC.
+		\item \textbf{EC logical:} asegurar el mantenimiento de verdad para hechos que se basan en la presencia de otros hechos.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón}
+	Los EC patrón se usan para verificar si se cumplen campos de una entidad patrón en base a ciertos tipos de restricciones.
+	\begin{itemize}
+		\item Tipos de restricciones: literales, comodines, variables, sentencias conectivas, predicados, valores devueltos, direcciones de hechos.
+	\end{itemize}
+	\begin{minipage}{.48\textwidth}
+		\footnotesize
+		\begin{block}{Estructura: hechos ordenados}
+			\begin{verbatim}
+(defrule <nombre> [comentario] [propiedades]
+    (<hecho ordenado> <restriccion>*)
+    =>
+    <consecuente>
+)
+			\end{verbatim}
+		\end{block}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.48\textwidth}
+		\footnotesize
+		\begin{block}{Estructura: hechos no ordenados}
+			\begin{verbatim}
+(defrule <nombre> [comentario] [propiedades]
+    (<nombre plantilla>
+         (<campo> <restriccion>)*
+    )
+    =>
+    <consecuente>
+)
+			\end{verbatim}
+		\end{block}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: restricciones literales}
+	\begin{itemize}
+		\item Verifican que la entidad patrón toma un valor exacto.
+		\item Restricciones más básica, basadas únicamente en constantes.
+	\end{itemize}
+	\begin{minipage}{.4\linewidth}
+	\begin{exampleblock}{Por ejemplo}
+		\footnotesize
+		\begin{verbatim}
+(deffacts prueba1
+    (ejemplo 1.0 azul "rojo")
+    (ejemplo 1 azul)
+    (ejemplo 1 azul rojo)
+    (ejemplo 1 azul ROJO)
+    (ejemplo 1 azul rojo 6.9)
+    (ejemplo 1.0 amarillo ROJO 33)
+    (ejemplo 3 rojo amarillo 9)
+)
+(defrule buscar-literal
+    (ejemplo 1 azul rojo) =>
+)
+		\end{verbatim}
+	\end{exampleblock}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.5\linewidth}
+	\begin{exampleblock}{Por ejemplo}
+		\footnotesize
+		\begin{verbatim}
+(deftemplate persona
+     (slot nombre)
+     (slot edad)
+     (multislot amigos))
+(deffacts prueba2
+     (persona (nombre Aurora) (edad 26))
+     (persona (nombre Juan) (edad 20))
+     (persona (nombre Jose) (edad 20)
+              (amigos Adela Jorge))
+     (persona (nombre Adela) (edad 9)
+              (amigos Jose))
+     (persona (nombre Carlos) (edad 40)
+              (amigos María Antonio Lourdes)))
+(defrule buscar-edad (persona (edad 20)) => )
+		\end{verbatim}
+	\end{exampleblock}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: restricciones comodín I}
+	\begin{itemize}
+		\item Indican que cualquier valor en la posición indicada de la entidad patrón es válido para la regla.
+		\item Dos tipos:
+		\begin{itemize}
+			\item Comodín monocampo \texttt{?}: Busca exactamente un campo.
+			\item Comodín multicampo \texttt{\$?}: Busca cualquier número de campos (incluso 0).
+		\end{itemize}
+	\end{itemize}
+		\begin{minipage}{.4\linewidth}
+		\begin{exampleblock}{Por ejemplo}
+			\footnotesize
+			\begin{verbatim}
+(defrule buscar-comodin
+     (ejemplo ? azul rojo $?) =>
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.5\linewidth}
+		\begin{exampleblock}{Por ejemplo}
+			\footnotesize
+			\begin{verbatim}
+(defrule buscar-un-amigo
+     (persona (amigos ?)) =>
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: restricciones comodín II}
+	Los EC patrón literal y comodín se pueden combinar para especificar restricciones complejas.
+	\begin{itemize}
+		\item Buscar un literal en cualquier posición: \texttt{(... \$? <literal> \$? ...)}
+		\begin{exampleblock}{Por ejemplo}
+			\footnotesize
+			\texttt{(defrule encontrar-literal (ejemplo \$? AMARILLO \$?) => )}\\
+			Emparejaría con \begin{verbatim}(ejemplo AMARILLO), (ejemplo 2.5 AMARILLO),
+				(ejemplo "rojo" AMARILLO 89), (ejemplo "rojo" 33 AMARILLO)...
+		\end{verbatim}
+		\end{exampleblock}
+		\item Buscar un multicampo con al menos un elemento: \texttt{(... ? \$?)}
+		\begin{exampleblock}{Por ejemplo}
+			\footnotesize
+			\texttt{(defrule al-menos-un-amigo (persona (amigos ? \$?)))}
+		\end{exampleblock}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{EC patrón: restricciones variables I}
+	\begin{minipage}{.45\textwidth}
+	\begin{itemize}
+		\item Almacenan un valor para luego emplearse en otros EC del antecedente o en el consecuente de una regla.
+		\item Dos tipos:
+		\begin{itemize}
+			\item Variable monocampo \texttt{?<nombre>}: almacena exactamente un campo.
+			\item Variable multicampo \texttt{\$?<nombre>}: almacena cualquier número de campos consecutivos.
+		\end{itemize}
+	\end{itemize}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.45\textwidth}
+		\begin{block}{OjO}
+			La primera vez que la variable aparece actúa como un comodín, pero su valor queda ligado al valor del campo. Si la variable vuelve a aparecer, debe coincidir el valor ligado.
+		\end{block}
+		\begin{block}{OjO'}
+			El ámbito de la variable sólo abarca la regla en la que aparece.
+		\end{block}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: restricciones variables II}
+	\begin{minipage}{.45\textwidth}
+		\begin{exampleblock}{Por ejemplo}
+			\begin{verbatim}
+(defrule encontrar-terna
+   (ejemplo ?x ?y ?z)
+   =>
+   (printout t ?x " : " ?y " : " ?z crlf)
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.45\textwidth}
+		\begin{exampleblock}{Por ejemplo}
+			\begin{verbatim}
+(defrule mis-amigos
+    (persona (nombre ?n) (amigos $?a))
+    =>
+    (printout t "Me llamo " ?n " y mis
+    amigos son " $?a crlf)
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: sentencias conectivas I}
+	\begin{itemize}
+		\item Permiten modificar EC patrón de tipo \textit{restricción} mediante conectores lógicos básicos: negación ($\sim$), y lógico (\texttt{\&}), o lógico (\texttt{|}).
+		\begin{block}{Estructura}
+			\begin{verbatim}
+	(... <restricción simple> <|/&> <restricción simple> ...)
+	<restricion simple> :: [~] <literal | var. monocampo | var. multicampo>
+			\end{verbatim}
+		\end{block}
+		\item Precedencia: $\sim$ > \texttt{\&} > \texttt{|}
+		\begin{itemize}
+			\item Excepción: en situaciones compuestas de \texttt{<variable>\&<restriccion>*}, la variable se trata a parte.\\
+			\begin{center}
+				\texttt{?x\&rojo|azul} $\equiv$ \texttt{?x\&(rojo|azul)}
+			\end{center}
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: sentencias conectivas II}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule busca-rojo (ejemplo ? azul rojo|ROJO|"rojo" $?)  =>  )
+(defrule excluye-azul
+  (ejemplo ? ?x&~azul $?) => (printout t "No soy azul, soy " ?x crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule no-profes
+   (persona (nombre ?n&~Aurora&~Carlos))
+   =>
+   (printout t ?n " no es profesor" crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{EC patrón: predicados I}
+	\begin{itemize}
+		\item Restringen el campo según el resultado de una expresión lógica $\rightarrow$ la función debe devolver no \texttt{FALSE} para que el patrón evaluado empareje con la regla.
+		\begin{block}{Estructura}
+			\texttt{(... <restricción simple> : <función> ...)}
+		\end{block}
+		\item Uso típico: variable + conectiva \texttt{\&} + EC patrón predicado.
+		\item Algunas funciones de CLIPS que devuelven expresiones lógicas:
+		\begin{itemize}
+			\item Tipos de datos: \texttt{integerp}, \texttt{floatp}, \texttt{numberp}, \texttt{symbolp}, \texttt{stringp}, \texttt{lexemep}
+			\item Booleana: \texttt{eq}, \texttt{neq}, \texttt{and}, \texttt{or}, \texttt{not}
+			\item Lógica mates: \texttt{=}, \texttt{<>}, \texttt{<}, \texttt{<=}, \texttt{>}, \texttt{>=}, \texttt{evenp}, \texttt{oddp}
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: predicados II}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule busca-cadena (ejemplo ? ? ?x&:(stringp ?x) $?) => )
+(defrule buca-1 (ejemplo ?x&:(= ?x 1) $?) => )
+(defrule buca-1-mal (ejemplo ?x&:(eq ?x 1) $?) => )
+		\end{verbatim}
+	\end{exampleblock}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule busca-jovenes
+      (persona (nombre ?n) (edad ?x&:(> ?x 15)&:(< ?x 25)))
+      =>
+      (printout t ?n " es joven" crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: valores devueltos}
+	\begin{itemize}
+		\item Restringe un campo en base al valor devuelto por una función $\rightarrow$ el resultado debe ser uno de los tipos de datos primitivos.
+		\item El resultado de la función actuará como un literal limitando los valores de los EC a ese resultado.
+		\begin{block}{Estructura}
+			\texttt{(... =<función> ...)}
+		\end{block}
+		\item Algunas funciones numéricas de CLIPS: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{div}, \texttt{mod}, \texttt{sqrt}, \texttt{**}, \texttt{round}, \texttt{abs}, \texttt{max}, \texttt{min}
+	\end{itemize}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule buscar-triple
+     (ejemplo  ?x   $?   =(* 3 ?x)   $?)  =>
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{EC patrón: direcciones de hechos}
+	 Para actuar sobre hechos en el consencuente de una regla es necesario capturar su dirección y guardarla en una variable.
+	\begin{itemize}
+		\item En el antecedente se utiliza el operador \texttt{<-}: \texttt{?dir <- <hecho>}
+		\item En el consecuente se pueden aplicar las operaciones:
+		\begin{itemize}
+			\item Eliminación: \texttt{(retract ?dir)}
+			\item Modificación*: \texttt{(modify ?dir (<campo> <nuevo valor>))}
+			\item Duplicación*: \texttt{(duplicate ?dir (<campo> <nuevo valor>))}\\
+			* Solo para hechos no ordenados
+		\end{itemize}
+	\end{itemize}
+	\begin{exampleblock}{Por ejemplo}
+		\footnotesize
+		\begin{verbatim}
+(defrule comenzar
+     ?h <- (iniciar_programa)
+     =>
+     (retract ?h) (printout t "Iniciando..." crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Ejercicio: \texttt{pila.clp}}
+	\begin{itemize}
+		\item Recupera el ejercicio sobre pilas y colas trabajado la semana pasada.
+		\item Añade una modificación para que sólo admita datos de tipo numérico.
+		\item Añade una modificación para que la pila se rellene automáticamente dado un dato inicial y cuántos elementos más añadir.\\
+	\end{itemize}
+	Por ejemplo, si se parte de los hechos \texttt{(pila)}, \texttt{(dato 1)} y \texttt{(elementos 5)}, el resultado final será:\\
+	\texttt{(pila 5 4 3 2 1)}
+\end{frame}
+
+\begin{frame}[fragile]{EC test I}
+	El EC test comprueba el valor devuelto por una función lógica. Se satisface si el resultado es \texttt{TRUE}. Por el contrario, no se satisface si la función devuelve \texttt{FALSE}.
+	\begin{itemize}
+		\item Uso típico: actúa sobre variables previamente capturadas en operaciones similares a los EC patrón predicados, pero más complejas.
+	\end{itemize}
+	\begin{block}{Estructura}
+		\begin{verbatim}
+(defrule <nombre> [comentario] [propiedades]
+      (<hecho> | <restricción> |...)*
+      (test <función>)
+      =>
+      <consecuente>
+)
+		\end{verbatim}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{EC test II}
+	\begin{exampleblock}{Por ejemplo}
+		\begin{verbatim}
+(defrule pila-correcta
+     (pila ?v ?w ?x ?y ?z)
+     (test (> ?v ?w ?x ?y ?z))
+     =>
+     (printout t "La pila está correcta" crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{EC or, and y not I}
+	Estos EC sirven para encadenar otros EC mediante operaciones lógicas.
+	\begin{block}{Estructura}
+		\texttt{(and|or <elemento condicional> +)}\\
+		\texttt{(not <elemento condicional>)}
+	\end{block}
+	\begin{itemize}
+		\item EC or: se satisface si se satisface cualquiera de los EC que lo compone.
+		\begin{itemize}
+			\item La regla se activará para tantas ocurrencias como EC dentro del or se cumplan.
+		\end{itemize}
+		\item EC and: se satisface si todos los EC que lo componen se satisface.
+		\begin{itemize}
+			\item Se puede utilizar en combinación con \textit{or} en el antecedente. Utilizarlo sólo no es necesario ya que el comportamiento por defecto del antecedente es unir todas los EC mediante y lógico.
+		\end{itemize}
+		\item EC not: se satisface si no se satisface el EC contenido.
+		\begin{itemize}
+			\item Sólo puede abarcar un EC.
+			\item Uso típico: comprobar que un hecho no existe en la base de afirmaciones.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{EC or, and y not II}
+	\begin{minipage}{.48\textwidth}
+		\begin{exampleblock}{Por ejemplo}
+			\small
+			\begin{verbatim}
+(defrule desayuno-sano
+     (tengo zumo)
+     (or (and (tengo pan) (tengo aceite))
+         (and (tengo leche) (tengo cereales)))
+     (not (tengo bollo))
+     =>
+     (printout t "Desayuno sano")
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.48\textwidth}
+		\begin{exampleblock}{Por ejemplo}
+			\small
+			\begin{verbatim}
+(defrule completa-bd
+     (persona (nombre ?n1)
+          (amigos $? ?n2 $?))
+     (not (persona (nombre ?n2)))
+     =>
+     (assert (persona (nombre ?n2)
+                  (amigos ?n1)))
+)
+			\end{verbatim}
+		\end{exampleblock}
+	\end{minipage}
+	\textbf{Ejercicio 1:} ¿cómo podría mejorarse la regla \texttt{mis-amigos} definida anteriormente para que no muestre personas sin amigos?\\
+	\textbf{Ejercicio 2:} ¿cómo se crearía una regla que inicialice la pila/cola de ejercicios anteriores en caso de que no exista?
+\end{frame}
+
+\begin{frame}{EC exists I}
+	El EC exists permite comprobar si una serie de EC se satisface por \textbf{algún} conjunto de hechos.
+	\begin{itemize}
+		\item El comportamiento normal de CLIPS es que la regla se active para \textbf{todos} los conjuntos de hechos que la satisfagan.
+	\end{itemize}
+	\begin{block}{Estructura}
+		\texttt{(exists <elemento condicional> +)}\\
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{EC exists II}
+	Observa la regla del fichero disponible en Moodle \texttt{superheroes.clp}. Cárgalo en Moodle y observa el comportamiento:
+	\begin{minipage}{\textwidth}
+		\footnotesize
+		\begin{verbatim}
+CLIPS> (clear)
+CLIPS> (load superheroes.clp)
+CLIPS> (reset)
+CLIPS> (facts)
+f-1     (superheroe (nombre spiderman) (estado libre))
+f-2     (superheroe (nombre viuda-negra) (estado ocupado))
+f-3     (superheroe (nombre drextrange) (estado libre))
+f-4     (superheroe (nombre capitana-marvel) (estado ocupado))
+CLIPS> (agenda)
+0      salvar-dia: f-3
+0      salvar-dia: f-1
+		\end{verbatim}
+	\end{minipage}
+	\begin{exampleblock}{Solución}
+		\footnotesize
+		\begin{verbatim}
+(defrule salvar-dia "Necesitamos que un súper heroe salve el día"
+     (exists (superheroe (estado libre))) => (printout t "El día está salvado" crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}{EC forall I}
+	El EC forall permite comprobar si para toda ocurrencia del primer EC se satisface el conjunto de los siguientes EC contenidos en el \texttt{forall}.
+	\begin{block}{Estructura}
+		\texttt{(forall <elemento condicional> <elemento condicional>+)}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{EC forall II}
+	Descarga y observa la estructura del fichero \texttt{estudiantes.clp}.
+	¿Qué es lo que falta para que se active la regla \texttt{todos-limpios}?
+	\begin{exampleblock}{La regla}
+		\begin{verbatim}
+(defrule todos-limpios
+     (forall (estudiante ?nombre)
+             (aprobado lengua ?nombre) (aprobado matematicas ?nombre)
+             (aprobado historia ?nombre)
+     )
+     =>
+     (printout t "Todos mis estudiantes pasan de curso" crlf)
+)
+		\end{verbatim}
+	\end{exampleblock}
+\end{frame} 
+
+\begin{frame}{EC logical I}
+	El EC logical asegura el \textit{mantenimiento de verdad} de los hechos creados a partir de él.
+	\begin{enumerate}
+		\item Los hechos del antecedente proporcionan \textbf{soporte lógico} a los hechos que se han creado en el consecuente de una regla basada en el EC forall. $\rightarrow$ Los hechos permanecen en la base de hechos mientras permanezcan los que los soportan lógicamente.
+		\item  Un hecho puede recibir soporte lógico de varios conjuntos distintos de hechos $\rightarrow$ para permanecer necesita que exista al menos uno de los conjuntos.
+		\item Los EC incluidos en un EC logical están unidos implícitamente por Y lógico.
+		\item Puede combinarse con EC \textit{and}, \textit{or} y \textit{not}.
+		\item Sólo los primeros EC del antecedente pueden ser de tipo logical.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{EC logical II}
+	\scriptsize
+	\begin{verbatim}
+CLIPS> (defrule puedo-pasar (logical (or
+           (and (semaforo verde) (not (viene ambulancia))) (and (semaforo rojo) (sin coches))))
+    => (assert (puedo cruzar-paso)))
+CLIPS> (assert (semaforo verde))
+CLIPS> (run)
+CLIPS> (facts)
+f-1     (semaforo verde)
+f-2     (puedo cruzar-paso)
+CLIPS> (assert (viene ambulancia))
+CLIPS> (facts)
+f-1     (semaforo verde)
+f-3     (viene ambulancia)
+CLIPS> (retract 1 3)
+CLIPS> (assert (semaforo rojo) (sin coches))
+CLIPS > (run)
+CLIPS> (facts)
+f-4     (semaforo rojo)
+f-5     (sin coches)
+f-6     (puedo cruzar-paso)
+CLIPS> (retract 5)
+CLIPS> (facts)
+f-4     (semaforo rojo)
+	\end{verbatim}
+\end{frame}
+ 
+\begin{frame}
+\titlepage
+\end{frame}
+\end{document}
