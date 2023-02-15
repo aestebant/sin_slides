@@ -18,21 +18,25 @@
 \renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
 
 
-\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 3: Hechos II}
+\title[]{{\Large Sistemas Inteligentes\\CLIPS}\\[0.2cm]Tema 3: Hechos II}
 
-\date[Marzo, 2022]{14 de marzo de 2022}
-\author[A. Esteban]{\texorpdfstring{
+\date[Marzo, 2022]{Marzo de 2023}
+\author[Aurora Esteban]{\texorpdfstring{
     \begin{minipage}{0.47\linewidth}
         Aurora Esteban Toscano
         \pdfnewline
         \texttt{aestebant@uco.es}
     \end{minipage}
-}{Aurora Esteban Toscano}
+    \hfill
+    \begin{minipage}{0.47\linewidth}
+        José Manuel Alcalde Llergo
+        \pdfnewline
+        \texttt{i72alllj@uco.es}
+    \end{minipage}}{Aurora Esteban Toscano}
 }
 \institute{Grado en Ingeniería Informática, Universidad de Córdoba}
-\begin{document}
 
-%\setstretch{1.5}
+\begin{document}
 
 \begin{frame}
 \titlepage
@@ -61,9 +65,10 @@
 			Los hechos no ordenados permiten representar información con la relación entre conceptos y atributos.
 		\end{minipage}
 	\end{minipage}
+	\hfil
 	\begin{minipage}{.55\textwidth}
-		\begin{exampleblock}{Por ejemplo}
-			\footnotesize
+		\begin{exampleblock}{\footnotesize Por ejemplo}
+			\scriptsize
 			\begin{verbatim}
 (deftemplate coche ``Es un coche''
     (slot marca)
@@ -225,7 +230,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{Por ejemplo}
-	\footnotesize
+	\scriptsize
 	\begin{verbatim}
 CLIPS> (clear)
 CLIPS> (deffacts EstadoCoche (coche motor "a punto") (coche bujias "limpias"))

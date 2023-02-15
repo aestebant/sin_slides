@@ -18,21 +18,26 @@
 \renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
 
 
-\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 5: Reglas II}
+\title[]{{\Large Sistemas Inteligentes\\CLIPS}\\[0.2cm]Tema 5: Reglas II}
 
-\date[Marzo, 2022]{28 de marzo de 2022}
-\author[A. Esteban]{\texorpdfstring{
+\date[]{Marzo de 2023}
+\author[Aurora Esteban]{\texorpdfstring{
     \begin{minipage}{0.47\linewidth}
         Aurora Esteban Toscano
         \pdfnewline
         \texttt{aestebant@uco.es}
     \end{minipage}
-}{Aurora Esteban Toscano}
+    \hfill
+    \begin{minipage}{0.47\linewidth}
+        José Manuel Alcalde Llergo
+        \pdfnewline
+        \texttt{i72alllj@uco.es}
+    \end{minipage}
+    }{Aurora Esteban Toscano}
 }
 \institute{Grado en Ingeniería Informática, Universidad de Córdoba}
-\begin{document}
 
-%\setstretch{1.5}
+\begin{document}
 
 \begin{frame}
 \titlepage
@@ -47,8 +52,8 @@
 
 \begin{frame}{Introducción a las reglas en CLIPS}
 	Si el \textbf{antecedente} es cierto según los hechos almacenados en la \textbf{base de afirmaciones}, entonces \textbf{pueden} realizarse las acciones especificadas en el \textbf{consecuente}.
-	\begin{block}{Estructura de las reglas}
-		\centering
+	\begin{block}{\small Estructura de las reglas}
+		\centering\small
 		\textbf{Antecedente} $\Longrightarrow$ \textbf{Consecuente}
 	\end{block}
 	\begin{itemize}
@@ -83,6 +88,7 @@
 	\begin{itemize}
 		\item Tipos de restricciones: literales, comodines, variables, sentencias conectivas, predicados, valores devueltos, direcciones de hechos.
 	\end{itemize}
+	\hfil
 	\begin{minipage}{.48\textwidth}
 		\footnotesize
 		\begin{block}{Estructura: hechos ordenados}
@@ -118,8 +124,8 @@
 		\item Restricciones más básica, basadas únicamente en constantes.
 	\end{itemize}
 	\begin{minipage}{.4\linewidth}
-	\begin{exampleblock}{Por ejemplo}
-		\footnotesize
+	\begin{exampleblock}{\footnotesize Por ejemplo}
+		\scriptsize
 		\begin{verbatim}
 (deffacts prueba1
     (ejemplo 1.0 azul "rojo")
@@ -138,8 +144,8 @@
 	\end{minipage}
 	\hfill
 	\begin{minipage}{.5\linewidth}
-	\begin{exampleblock}{Por ejemplo}
-		\footnotesize
+	\begin{exampleblock}{\footnotesize Por ejemplo}
+		\scriptsize
 		\begin{verbatim}
 (deftemplate persona
      (slot nombre)
@@ -234,6 +240,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{EC patrón: restricciones variables II}
+	\small
 	\begin{minipage}{.45\textwidth}
 		\begin{exampleblock}{Por ejemplo}
 			\begin{verbatim}
@@ -280,6 +287,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{EC patrón: sentencias conectivas II}
+	\footnotesize
 	\begin{exampleblock}{Por ejemplo}
 		\begin{verbatim}
 (defrule busca-rojo (ejemplo ? azul rojo|ROJO|"rojo" $?)  =>  )
@@ -316,6 +324,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{EC patrón: predicados II}
+	\footnotesize
 	\begin{exampleblock}{Por ejemplo}
 		\begin{verbatim}
 (defrule busca-cadena (ejemplo ? ? ?x&:(stringp ?x) $?) => )
@@ -343,7 +352,8 @@
 		\end{block}
 		\item Algunas funciones numéricas de CLIPS: \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{div}, \texttt{mod}, \texttt{sqrt}, \texttt{**}, \texttt{round}, \texttt{abs}, \texttt{max}, \texttt{min}
 	\end{itemize}
-	\begin{exampleblock}{Por ejemplo}
+	\begin{exampleblock}{\small Por ejemplo}
+		\footnotesize
 		\begin{verbatim}
 (defrule buscar-triple
      (ejemplo  ?x   $?   =(* 3 ?x)   $?)  =>
@@ -364,8 +374,8 @@
 			* Solo para hechos no ordenados
 		\end{itemize}
 	\end{itemize}
-	\begin{exampleblock}{Por ejemplo}
-		\footnotesize
+	\begin{exampleblock}{\footnotesize Por ejemplo}
+		\scriptsize
 		\begin{verbatim}
 (defrule comenzar
      ?h <- (iniciar_programa)
@@ -440,9 +450,10 @@
 \end{frame}
 
 \begin{frame}[fragile]{EC or, and y not II}
+	\small
 	\begin{minipage}{.48\textwidth}
 		\begin{exampleblock}{Por ejemplo}
-			\small
+			\footnotesize
 			\begin{verbatim}
 (defrule desayuno-sano
      (tengo zumo)
@@ -458,7 +469,7 @@
 	\hfill
 	\begin{minipage}{.48\textwidth}
 		\begin{exampleblock}{Por ejemplo}
-			\small
+			\footnotesize
 			\begin{verbatim}
 (defrule completa-bd
      (persona (nombre ?n1)
@@ -503,8 +514,8 @@ CLIPS> (agenda)
 0      salvar-dia: f-1
 		\end{verbatim}
 	\end{minipage}
-	\begin{exampleblock}{Solución}
-		\footnotesize
+	\begin{exampleblock}{\footnotesize Solución}
+		\scriptsize
 		\begin{verbatim}
 (defrule salvar-dia "Necesitamos que un súper heroe salve el día"
      (exists (superheroe (estado libre))) => (printout t "El día está salvado" crlf)

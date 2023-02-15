@@ -18,21 +18,26 @@
 \renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
 
 
-\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.3cm]Tema 7: Funciones y funciones genéricas}
+\title[]{{\Large Sistemas Inteligentes\\CLIPS}\\[0.2cm]Tema 7: Funciones y funciones genéricas}
 
-\date[Marzo, 2022]{18 de abril de 2022}
-\author[A. Esteban]{\texorpdfstring{
+\date[]{Abril de 2023}
+\author[Aurora Esteban]{\texorpdfstring{
     \begin{minipage}{0.47\linewidth}
         Aurora Esteban Toscano
         \pdfnewline
         \texttt{aestebant@uco.es}
     \end{minipage}
+    \hfill
+    \begin{minipage}{0.47\linewidth}
+        José Manuel Alcalde Llergo
+        \pdfnewline
+        \texttt{i72alllj@uco.es}
+    \end{minipage}
 }{Aurora Esteban Toscano}
 }
 \institute{Grado en Ingeniería Informática, Universidad de Córdoba}
-\begin{document}
 
-%\setstretch{1.5}
+\begin{document}
 
 \begin{frame}
 \titlepage
@@ -137,11 +142,11 @@ Factorial error: adios
 \end{frame}
 
 \begin{frame}[fragile]{Funciones genéricas: definición}
+	\footnotesize
 	\begin{block}{Cabecera}
 		\texttt{(defgeneric <nombre> [comentario])}
 	\end{block}
 	\begin{block}{Métodos}
-		\small
 		\begin{verbatim}
 (defmethod <nombre> [índice] [comentario]
      (<restriccion mono-campo>* [restriccion multi-campo])
@@ -189,6 +194,7 @@ Factorial error: adios
 \end{frame}
 
 \begin{frame}[fragile]{Ejemplo}
+	\small
 	\begin{verbatim}
 CLIPS> (defmethod + ((?a STRING) (?b STRING))
     (str-cat ?a ?b))

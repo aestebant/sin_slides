@@ -18,21 +18,26 @@
 \renewcommand{\emph}[1]{\textbf{\textcolor{UniGold}{#1}}}
 
 
-\title[]{{\LARGE Sistemas Inteligentes\\CLIPS}\\[0.5cm]Tema 4: Reglas I}
+\title[]{{\Large Sistemas Inteligentes\\CLIPS}\\[0.2cm]Tema 4: Reglas I}
 
-\date[Marzo, 2022]{21 de marzo de 2022}
-\author[A. Esteban]{\texorpdfstring{
+\date[]{Marzo de 2023}
+\author[Aurora Esteban]{\texorpdfstring{
     \begin{minipage}{0.47\linewidth}
         Aurora Esteban Toscano
         \pdfnewline
         \texttt{aestebant@uco.es}
     \end{minipage}
+    \hfill
+    \begin{minipage}{0.47\linewidth}
+        José Manuel Alcalde Llergo
+        \pdfnewline
+        \texttt{i72alllj@uco.es}
+    \end{minipage}
 }{Aurora Esteban Toscano}
 }
 \institute{Grado en Ingeniería Informática, Universidad de Córdoba}
-\begin{document}
 
-%\setstretch{1.5}
+\begin{document}
 
 \begin{frame}
 \titlepage
@@ -48,8 +53,8 @@
 
 \begin{frame}{Introducción a las reglas en CLIPS}
 	Si el \textbf{antecedente} es cierto según los hechos almacenados en la \textbf{base de afirmaciones}, entonces \textbf{pueden} realizarse las acciones especificadas en el \textbf{consecuente}.
-	\begin{block}{Estructura de las reglas}
-		\centering
+	\begin{block}{\small Estructura de las reglas}
+		\centering\small
 		\textbf{Antecedente} $\Longrightarrow$ \textbf{Consecuente}
 	\end{block}
 	\begin{itemize}
@@ -59,8 +64,8 @@
 			\item Entre esas acciones puede estar crear (afirmar) más hechos, eliminar hechos obsoletos, llegar a conclusiones finales...
 		\end{itemize}
 	\end{itemize}
-	\begin{exampleblock}{Por ejemplo}
-		\centering
+	\begin{exampleblock}{\small Por ejemplo}
+		\centering\small
 		\texttt{SI} voy a clase \texttt{Y} atiendo \texttt{Y} hago los ejercicios $\Longrightarrow$ apruebo la asignatura
 	\end{exampleblock}
 \end{frame}
@@ -115,7 +120,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{Ejemplo}
-	\footnotesize
+	\scriptsize
 		\begin{verbatim}
 CLIPS> (clear)
 CLIPS> (defrule hola1 => (printout t "Hola Mundo" crlf))
@@ -208,6 +213,7 @@ CLIPS>
 \end{frame}
 
 \begin{frame}[fragile]{Ejemplo}
+	\footnotesize
 	\begin{verbatim}
 CLIPS> (clear)
 CLIPS> (defrule regla1 (declare (salience 10))
